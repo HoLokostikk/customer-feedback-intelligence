@@ -3,6 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils.class_weight import compute_sample_weight
 from sklearn.svm import LinearSVC
 from xgboost import XGBClassifier
 import pandas as pd
@@ -27,13 +28,18 @@ y_train_vec = le.fit_transform(y_train)
 y_val_vec = le.transform(y_val)
 
 models = {
-    "Logistic Regression" : LogisticRegression(max_iter = 1000),
-    "LinearSVC" : LinearSVC(dual = False),
+    "Logistic Regression" : LogisticRegression(max_iter = 1000, class_weight="balanced"),
+    "LinearSVC" : LinearSVC(dual = False, class_weight = "balanced"),
     "XGBoost" : XGBClassifier(eval_metric = 'logloss'),
 }
 
+sample_weights = compute_sample_weight(class_weight = "balanced", y = y_train_vec)
+
 for name, model in models.items():
-    model.fit(X_train_vec, y_train_vec)
+    if name == "XGBoost":
+        model.fit(X_train_vec, y_train_vec, sample_weight=sample_weights)
+    else:
+        model.fit(X_train_vec, y_train_vec)
     preds = model.predict(X_val_vec)
     print(name, classification_report(y_val_vec, preds, target_names = le.classes_))
 
