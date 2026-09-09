@@ -2,6 +2,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import LinearSVC
+from xgboost import XGBClassifier
 import pandas as pd
 
 df = pd.read_csv("../dataset/dataset_clean.csv")
@@ -19,11 +22,20 @@ vectorizer = TfidfVectorizer(max_features = 5000)
 X_train_vec = vectorizer.fit_transform(X_train["Review Text"])
 X_val_vec = vectorizer.transform(X_val["Review Text"])
 
-model = LogisticRegression(max_iter=1000)
-model.fit(X_train_vec, y_train)
+le = LabelEncoder()
+y_train_vec = le.fit_transform(y_train)
+y_val_vec = le.transform(y_val)
 
-preds = model.predict(X_val_vec)
-print(classification_report(y_val, preds))
+models = {
+    "Logistic Regression" : LogisticRegression(max_iter = 1000),
+    "LinearSVC" : LinearSVC(dual = False),
+    "XGBoost" : XGBClassifier(eval_metric = 'logloss'),
+}
+
+for name, model in models.items():
+    model.fit(X_train_vec, y_train_vec)
+    preds = model.predict(X_val_vec)
+    print(name, classification_report(y_val_vec, preds, target_names = le.classes_))
 
 
 
