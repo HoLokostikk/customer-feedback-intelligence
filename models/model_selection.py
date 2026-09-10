@@ -9,6 +9,7 @@ from xgboost import XGBClassifier
 import pandas as pd
 
 df = pd.read_csv("../dataset/dataset_clean.csv")
+df = df[df["rating_label"] != "neutral"].copy()
 
 X = df.drop(columns = ["year", "month", "day", "Reviewer Name", "Country"])
 y = df["rating_label"]
@@ -28,18 +29,15 @@ y_train_vec = le.fit_transform(y_train)
 y_val_vec = le.transform(y_val)
 
 models = {
-    "Logistic Regression" : LogisticRegression(max_iter = 1000, class_weight="balanced"),
-    "LinearSVC" : LinearSVC(dual = False, class_weight = "balanced"),
+    "Logistic Regression" : LogisticRegression(max_iter = 1000),
+    "LinearSVC" : LinearSVC(dual = False),
     "XGBoost" : XGBClassifier(eval_metric = 'logloss'),
 }
 
-sample_weights = compute_sample_weight(class_weight = "balanced", y = y_train_vec)
 
 for name, model in models.items():
-    if name == "XGBoost":
-        model.fit(X_train_vec, y_train_vec, sample_weight=sample_weights)
-    else:
-        model.fit(X_train_vec, y_train_vec)
+    model.fit(X_train_vec, y_train_vec)
+    model.fit(X_train_vec, y_train_vec)
     preds = model.predict(X_val_vec)
     print(name, classification_report(y_val_vec, preds, target_names = le.classes_))
 
