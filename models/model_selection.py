@@ -6,6 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_sample_weight
 from sklearn.svm import LinearSVC
 from xgboost import XGBClassifier
+from sklearn.model_selection import GridSearchCV
 import pandas as pd
 
 df = pd.read_csv("../dataset/dataset_clean.csv")
@@ -33,6 +34,8 @@ models = {
     "LinearSVC" : LinearSVC(dual = False),
     "XGBoost" : XGBClassifier(eval_metric = 'logloss'),
 }
+
+
 
 
 for name, model in models.items():
