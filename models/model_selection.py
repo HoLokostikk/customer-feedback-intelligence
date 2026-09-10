@@ -3,11 +3,14 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils.class_weight import compute_sample_weight
 from sklearn.svm import LinearSVC
 from xgboost import XGBClassifier
+from sklearn.model_selection import GridSearchCV
 import pandas as pd
 
 df = pd.read_csv("../dataset/dataset_clean.csv")
+df = df[df["rating_label"] != "neutral"].copy()
 
 X = df.drop(columns = ["year", "month", "day", "Reviewer Name", "Country"])
 y = df["rating_label"]
@@ -32,7 +35,11 @@ models = {
     "XGBoost" : XGBClassifier(eval_metric = 'logloss'),
 }
 
+
+
+
 for name, model in models.items():
+    model.fit(X_train_vec, y_train_vec)
     model.fit(X_train_vec, y_train_vec)
     preds = model.predict(X_val_vec)
     print(name, classification_report(y_val_vec, preds, target_names = le.classes_))
