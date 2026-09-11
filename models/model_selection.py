@@ -6,6 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_sample_weight
 from sklearn.svm import LinearSVC
 from xgboost import XGBClassifier
+from sklearn.model_selection import GridSearchCV
 import pandas as pd
 import numpy as np
 
@@ -45,6 +46,17 @@ for name, model in models.items():
         model.fit(X_train_vec, y_train_vec, sample_weight= sample_weights_custom)
     else:
         model.fit(X_train_vec, y_train_vec)
+    "Logistic Regression" : LogisticRegression(max_iter = 1000),
+    "LinearSVC" : LinearSVC(dual = False),
+    "XGBoost" : XGBClassifier(eval_metric = 'logloss'),
+}
+
+
+
+
+for name, model in models.items():
+    model.fit(X_train_vec, y_train_vec)
+    model.fit(X_train_vec, y_train_vec)
     preds = model.predict(X_val_vec)
     print(name, classification_report(y_val_vec, preds, target_names = le.classes_))
 
