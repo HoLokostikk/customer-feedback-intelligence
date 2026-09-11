@@ -1,11 +1,12 @@
 from sklearn.model_selection import GridSearchCV
-from xgboost import XGBClassifier
 from sklearn.metrics import classification_report
+import matplotlib.pyplot as plt
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import pandas as pd
 
 
@@ -36,11 +37,43 @@ models = {
 X_test_vec = vectorizer.transform(X_test["Review Text"])
 y_test_vec = le.transform(y_test)
 
-for name, model in models.items():
-    model.fit(X_train_vec, y_train_vec)
-    preds = model.predict(X_test_vec)
-    print(name, classification_report(y_test_vec, preds, target_names = le.classes_))
 
+
+params_grid_logreg = {
+    "C" : [0.01, 0.1, 1, 10, 10],
+    "penalty" : ["l1", "l2"],
+    "solver" : ["liblinear"],
+}
+
+params_grid_svc = {
+    "C" : [0.01, 0.1, 1, 10, 100],
+    "loss" : ["squared_hinge"],
+}
+
+grid_logreg = GridSearchCV(
+    estimator = LogisticRegression(max_iter = 1000),
+    param_grid = params_grid_logreg,
+    cv = 5,
+    scoring = "f1_macro",
+    n_jobs = -1,
+)
+
+grid_svc = GridSearchCV(
+    estimator = LinearSVC(dual = False),
+    param_grid = params_grid_svc,
+    cv = 5,
+    scoring = "f1_macro",
+    n_jobs =  -1,
+)
+
+grid_logreg.fit(X_train_vec, y_train_vec)
+grid_svc.fit(X_train_vec, y_train_vec)
+
+cm = confusion_matrix(grid_logreg.best_estimator_.predict(X_test_vec), y_test_vec)
+ConfusionMatrixDisplay(cm).plot()
+cm1 = confusion_matrix(grid_svc.best_estimator_.predict(X_test_vec), y_test_vec)
+ConfusionMatrixDisplay(cm1).plot()
+plt.savefig("conf_mat_linsvc.png")
 
 
 
