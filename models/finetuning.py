@@ -73,7 +73,6 @@ cm = confusion_matrix(grid_logreg.best_estimator_.predict(X_test_vec), y_test_ve
 ConfusionMatrixDisplay(cm).plot()
 cm1 = confusion_matrix(grid_svc.best_estimator_.predict(X_test_vec), y_test_vec)
 ConfusionMatrixDisplay(cm1).plot()
-plt.savefig("conf_mat_linsvc.png")
 
 import joblib
 joblib.dump(le, "train_data/label_encoder.pkl")
