@@ -13,7 +13,7 @@ import pandas as pd
 df = pd.read_csv("../dataset/dataset_clean.csv")
 df = df[df["rating_label"] != "neutral"].copy()
 
-X = df.drop(columns = ["year", "month", "day", "Reviewer Name", "Country"])
+X = df.drop(columns = ["year", "month", "day", "Reviewer Name", "Country", "rating_label"])
 y = df["rating_label"]
 
 X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size = 0.3, random_state = 42)
@@ -76,52 +76,10 @@ ConfusionMatrixDisplay(cm1).plot()
 plt.savefig("conf_mat_linsvc.png")
 
 import joblib
-joblib.dump(X_train, "train_data/X_train_clean.pkl")
-joblib.dump(y_train, "train_data/y_train_clean.pkl")
-joblib.dump(X_val, "train_data/X_val_clean.pkl")
-joblib.dump(y_val, "train_data/y_val_clean.pkl")
-joblib.dump(X_test, "train_data/X_test_clean.pkl")
-joblib.dump(y_test, "train_data/y_test_clean.pkl")
 joblib.dump(le, "train_data/label_encoder.pkl")
 joblib.dump(vectorizer, "train_data/vectorizer.pkl")
 joblib.dump(grid_logreg.best_estimator_, "train_data/logreg.pkl")
 
-
-params_grid_logreg = {
-    "C" : [0.01, 0.1, 1, 10, 10],
-    "penalty" : ["l1", "l2"],
-    "solver" : ["liblinear"],
-}
-
-params_grid_svc = {
-    "C" : [0.01, 0.1, 1, 10, 100],
-    "loss" : ["squared_hinge"],
-}
-
-grid_logreg = GridSearchCV(
-    estimator = LogisticRegression(max_iter = 1000),
-    param_grid = params_grid_logreg,
-    cv = 5,
-    scoring = "f1_macro",
-    n_jobs = -1,
-)
-
-grid_svc = GridSearchCV(
-    estimator = LinearSVC(dual = False),
-    param_grid = params_grid_svc,
-    cv = 5,
-    scoring = "f1_macro",
-    n_jobs =  -1,
-)
-
-grid_logreg.fit(X_train_vec, y_train_vec)
-grid_svc.fit(X_train_vec, y_train_vec)
-
-cm = confusion_matrix(grid_logreg.best_estimator_.predict(X_test_vec), y_test_vec)
-ConfusionMatrixDisplay(cm).plot()
-cm1 = confusion_matrix(grid_svc.best_estimator_.predict(X_test_vec), y_test_vec)
-ConfusionMatrixDisplay(cm1).plot()
-plt.savefig("conf_mat_linsvc.png")
 
 
 
