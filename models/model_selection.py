@@ -16,7 +16,7 @@ df = df[df["rating_label"] != "neutral"].copy()
 
 custom_weights = {0: 1.0, 1: 3.0, 2: 1.2}
 
-X = df.drop(columns = ["year", "month", "day", "Reviewer Name", "Country"])
+X = df.drop(columns = ["year", "month", "day", "Reviewer Name", "Country", "rating_label"])
 y = df["rating_label"]
 
 X_train, X_temp, y_train, y_temp = train_test_split(
