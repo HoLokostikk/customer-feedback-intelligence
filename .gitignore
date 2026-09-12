@@ -2,3 +2,4 @@ venv/
 .idea/
 conf_matrixes/
 models/train_data
+database/
